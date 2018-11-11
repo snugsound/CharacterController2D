@@ -7,6 +7,7 @@
 *.unityproj
 *.sln
 *.userprefs
+.vs/
 
 ### OSX ###
 *.DS_Store

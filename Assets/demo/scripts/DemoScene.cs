@@ -1,125 +1,176 @@
 ﻿using UnityEngine;
-using System.Collections;
-using Prime31;
+using Snugsound;
+using UnityEngine.UI;
 
-
+[RequireComponent(typeof(SpriteRenderer))]
 public class DemoScene : MonoBehaviour
 {
-	// movement config
-	public float gravity = -25f;
-	public float runSpeed = 8f;
-	public float groundDamping = 20f; // how fast do we change direction? higher means faster
-	public float inAirDamping = 5f;
-	public float jumpHeight = 3f;
+    // movement config
+    public float gravity = -25f;
+    public float runSpeed = 8f;
+    public float groundDamping = 20f; // how fast do we change direction? higher means faster
+    public float inAirDamping = 5f;
+    public float jumpHeight = 3f;
+    public bool useFixedUpdate = true;
 
-	[HideInInspector]
-	private float normalizedHorizontalSpeed = 0;
+    public Text debugText;
 
-	private CharacterController2D _controller;
-	private Animator _animator;
-	private RaycastHit2D _lastControllerColliderHit;
-	private Vector3 _velocity;
+    [HideInInspector]
+    private float normalizedHorizontalSpeed = 0;
 
+    private CharacterController2D controller;
+    private Animator animator;
+    private RaycastHit2D lastControllerColliderHit;
+    private Vector3 velocity;
+    private new SpriteRenderer renderer;
 
-	void Awake()
-	{
-		_animator = GetComponent<Animator>();
-		_controller = GetComponent<CharacterController2D>();
+    void Awake()
+    {
+        animator = GetComponent<Animator>();
+        controller = GetComponent<CharacterController2D>();
+        renderer = GetComponent<SpriteRenderer>();
 
-		// listen to some events for illustration purposes
-		_controller.onControllerCollidedEvent += onControllerCollider;
-		_controller.onTriggerEnterEvent += onTriggerEnterEvent;
-		_controller.onTriggerExitEvent += onTriggerExitEvent;
-	}
-
-
-	#region Event Listeners
-
-	void onControllerCollider( RaycastHit2D hit )
-	{
-		// bail out on plain old ground hits cause they arent very interesting
-		if( hit.normal.y == 1f )
-			return;
-
-		// logs any collider hits if uncommented. it gets noisy so it is commented out for the demo
-		//Debug.Log( "flags: " + _controller.collisionState + ", hit.normal: " + hit.normal );
-	}
+        // listen to some events for illustration purposes
+        controller.OnControllerCollidedEvent += onControllerCollider;
+        controller.OnTriggerEnterEvent += OnTriggerEnterEvent;
+        controller.OnTriggerExitEvent += OnTriggerExitEvent;
+    }
 
 
-	void onTriggerEnterEvent( Collider2D col )
-	{
-		Debug.Log( "onTriggerEnterEvent: " + col.gameObject.name );
-	}
+    #region Event Listeners
+
+    void onControllerCollider(RaycastHit2D hit)
+    {
+        // bail out on plain old ground hits cause they arent very interesting
+        if (hit.normal.y == 1f)
+            return;
+
+        // logs any collider hits if uncommented. it gets noisy so it is commented out for the demo
+        //Debug.Log( "flags: " + _controller.collisionState + ", hit.normal: " + hit.normal );
+    }
 
 
-	void onTriggerExitEvent( Collider2D col )
-	{
-		Debug.Log( "onTriggerExitEvent: " + col.gameObject.name );
-	}
-
-	#endregion
+    void OnTriggerEnterEvent(Collider2D col)
+    {
+        Debug.Log("onTriggerEnterEvent: " + col.gameObject.name);
+    }
 
 
-	// the Update loop contains a very simple example of moving the character around and controlling the animation
-	void Update()
-	{
-		if( _controller.isGrounded )
-			_velocity.y = 0;
+    void OnTriggerExitEvent(Collider2D col)
+    {
+        Debug.Log("onTriggerExitEvent: " + col.gameObject.name);
+    }
 
-		if( Input.GetKey( KeyCode.RightArrow ) )
-		{
-			normalizedHorizontalSpeed = 1;
-			if( transform.localScale.x < 0f )
-				transform.localScale = new Vector3( -transform.localScale.x, transform.localScale.y, transform.localScale.z );
+    #endregion
 
-			if( _controller.isGrounded )
-				_animator.Play( Animator.StringToHash( "Run" ) );
-		}
-		else if( Input.GetKey( KeyCode.LeftArrow ) )
-		{
-			normalizedHorizontalSpeed = -1;
-			if( transform.localScale.x > 0f )
-				transform.localScale = new Vector3( -transform.localScale.x, transform.localScale.y, transform.localScale.z );
+    private void UpdateController(float deltaTime)
+    {
+        bool jumping = false;
 
-			if( _controller.isGrounded )
-				_animator.Play( Animator.StringToHash( "Run" ) );
-		}
-		else
-		{
-			normalizedHorizontalSpeed = 0;
+        if (controller.IsGrounded)
+        {
+            velocity.y = 0;
+        }
 
-			if( _controller.isGrounded )
-				_animator.Play( Animator.StringToHash( "Idle" ) );
-		}
+        if (Input.GetKey(KeyCode.RightArrow))
+        {
+            normalizedHorizontalSpeed = 1;
+            if (renderer.flipX)
+            {
+                renderer.flipX = false;
+            }
 
+            if (controller.IsGrounded)
+            {
+                animator.Play(Animator.StringToHash("Run"));
+            }
+            else if (controller.collisionState.wasGroundedLastFrame)
+            {
+                animator.Play(Animator.StringToHash("Fall"));
+            }
 
-		// we can only jump whilst grounded
-		if( _controller.isGrounded && Input.GetKeyDown( KeyCode.UpArrow ) )
-		{
-			_velocity.y = Mathf.Sqrt( 2f * jumpHeight * -gravity );
-			_animator.Play( Animator.StringToHash( "Jump" ) );
-		}
+        }
+        else if (Input.GetKey(KeyCode.LeftArrow))
+        {
+            normalizedHorizontalSpeed = -1;
+            if (!renderer.flipX)
+            {
+                renderer.flipX = true;
+            }
 
+            if (controller.IsGrounded)
+            {
+                animator.Play(Animator.StringToHash("Run"));
+            }
+            else if (controller.collisionState.wasGroundedLastFrame)
+            {
+                animator.Play(Animator.StringToHash("Fall"));
+            }
+        }
+        else
+        {
+            normalizedHorizontalSpeed = 0;
 
-		// apply horizontal speed smoothing it. dont really do this with Lerp. Use SmoothDamp or something that provides more control
-		var smoothedMovementFactor = _controller.isGrounded ? groundDamping : inAirDamping; // how fast do we change direction?
-		_velocity.x = Mathf.Lerp( _velocity.x, normalizedHorizontalSpeed * runSpeed, Time.deltaTime * smoothedMovementFactor );
+            if (controller.IsGrounded)
+            {
+                animator.Play(Animator.StringToHash("Idle"));
+            }
+            else if (controller.collisionState.wasGroundedLastFrame)
+            {
+                animator.Play(Animator.StringToHash("Fall"));
+            }
+        }
 
-		// apply gravity before moving
-		_velocity.y += gravity * Time.deltaTime;
+        // we can only jump whilst grounded
+        if (controller.IsGrounded && Input.GetKeyDown(KeyCode.Space))
+        {
+            velocity.y = Mathf.Sqrt(2f * jumpHeight * -gravity);
+            animator.Play(Animator.StringToHash("Jump"));
+            jumping = true;
 
-		// if holding down bump up our movement amount and turn off one way platform detection for a frame.
-		// this lets us jump down through one way platforms
-		if( _controller.isGrounded && Input.GetKey( KeyCode.DownArrow ) )
-		{
-			_velocity.y *= 3f;
-			_controller.ignoreOneWayPlatformsThisFrame = true;
-		}
+        }
 
-		_controller.move( _velocity * Time.deltaTime );
+        // apply horizontal speed smoothing it. dont really do this with Lerp. Use SmoothDamp or something that provides more control
+        var smoothedMovementFactor = controller.IsGrounded ? groundDamping : inAirDamping; // how fast do we change direction?
 
-		// grab our current _velocity to use as a base for all calculations
-		_velocity = _controller.velocity;
-	}
+        velocity.x = Mathf.Lerp(velocity.x, normalizedHorizontalSpeed * runSpeed, deltaTime * smoothedMovementFactor);
+
+        // apply gravity before moving        
+        velocity.y += gravity * deltaTime;
+
+        // if holding down bump up our movement amount and turn off one way platform detection for a frame.
+        // this lets us jump down through one way platforms
+        if (!jumping && controller.IsGrounded && Input.GetKey(KeyCode.DownArrow))
+        {
+            velocity.y *= 3f;
+            controller.ignoreOneWayPlatformsThisFrame = true;
+        }
+
+        controller.Move(deltaTime, velocity * deltaTime, jumping);
+
+        debugText.text = controller.collisionState.ToString().Replace(", ", "\r\n");
+        debugText.text += "\r\nDelta: " + velocity;
+        debugText.text += "\r\nVelocity: " + controller.velocity;
+
+        // grab our current _velocity to use as a base for all calculations
+        velocity = controller.velocity;
+
+    }
+
+    private void Update()
+    {
+        if (!useFixedUpdate)
+        {
+            UpdateController(Time.deltaTime);
+        }
+    }
+
+    void FixedUpdate()
+    {
+        if (useFixedUpdate)
+        {
+            UpdateController(Time.fixedDeltaTime);
+        }
+    }
 
 }
