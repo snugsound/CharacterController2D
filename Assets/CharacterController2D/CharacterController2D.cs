@@ -615,7 +615,7 @@ namespace Snugsound
             {
                 DrawRay(slopeRay, rayDirection * slopeCheckRayDistance, Color.magenta);
             }
-
+            
             SlopeSafetyCheck(ref deltaMovement);
 
         }
@@ -665,7 +665,7 @@ namespace Snugsound
             {
 
                 // bail out if we have no slope
-                float angle = Vector2.Angle(_raycastHit2.normal, -rayDirection);
+                float angle = Vector2.Angle(_raycastHit2.normal, Vector2.up);
                 if (angle == 0)
                 {
                     DrawRay(slopeRay, rayDirection * slopeCheckRayDistance, Color.magenta);
