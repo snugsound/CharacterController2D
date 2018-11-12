@@ -583,7 +583,7 @@ namespace Snugsound
 
                 // bail out if we have no slope
                 angle = Vector2.Angle(raycastHit.normal, Vector2.up);
-                if (angle != 0)
+                if (angle != 0 && angle <= slopeLimit)
                 {
                     DrawRay(slopeRay, rayDirection * slopeCheckRayDistance, Color.yellow);
 
