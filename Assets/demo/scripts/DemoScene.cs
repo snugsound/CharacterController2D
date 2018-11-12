@@ -23,6 +23,8 @@ public class DemoScene : MonoBehaviour
     private RaycastHit2D lastControllerColliderHit;
     private Vector3 velocity;
     private new SpriteRenderer renderer;
+    private bool jump = false;
+    private bool drop = false;
 
     void Awake()
     {
@@ -122,7 +124,7 @@ public class DemoScene : MonoBehaviour
         }
 
         // we can only jump whilst grounded
-        if (controller.IsGrounded && Input.GetKeyDown(KeyCode.Space))
+        if (controller.IsGrounded && jump)
         {
             velocity.y = Mathf.Sqrt(2f * jumpHeight * -gravity);
             animator.Play(Animator.StringToHash("Jump"));
@@ -140,7 +142,7 @@ public class DemoScene : MonoBehaviour
 
         // if holding down bump up our movement amount and turn off one way platform detection for a frame.
         // this lets us jump down through one way platforms
-        if (!jumping && controller.IsGrounded && Input.GetKey(KeyCode.DownArrow))
+        if (!jumping && controller.IsGrounded && drop)
         {
             velocity.y *= 3f;
             controller.ignoreOneWayPlatformsThisFrame = true;
@@ -159,6 +161,9 @@ public class DemoScene : MonoBehaviour
 
     private void Update()
     {
+        jump = Input.GetKeyDown(KeyCode.Space);
+        drop = Input.GetKeyDown(KeyCode.DownArrow);
+
         if (!useFixedUpdate)
         {
             UpdateController(Time.deltaTime);
