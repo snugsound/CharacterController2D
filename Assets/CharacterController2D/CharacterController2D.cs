@@ -672,6 +672,13 @@ namespace Snugsound
                     return;
                 }
 
+                // or too steep
+                if(angle > slopeLimit)
+                {
+                    DrawRay(slopeRay, rayDirection * slopeCheckRayDistance, Color.magenta);
+                    return;
+                }
+
                 DrawRay(slopeRay, rayDirection * slopeCheckRayDistance, Color.yellow);
 
                 // Mark the collision below, even if we're not going down the slope
