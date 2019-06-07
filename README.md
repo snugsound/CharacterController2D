@@ -31,7 +31,7 @@ This fork adds many improvements and modifications, primarily centered around sl
 * execute Move in FixedUpdate, and at a higher resolution than default
 * display debug information in DemoScene
 * change jump key to space bar
-* remove underscore variable notification, bracketless if statements (personal preference)
+* remove underscore variable notation, bracketless if statements (personal preference)
 * replace jumpingThreshold with explicit parameter (isJumpingThisFrame)
 * play falling animation upon becoming ungrounded
 * use SpriteRenderer's flipX instead of localScale hack
