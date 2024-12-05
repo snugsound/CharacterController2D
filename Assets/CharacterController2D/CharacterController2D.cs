@@ -484,6 +484,7 @@ namespace Snugsound
 
                 isGoingUpSlope = true;
                 collisionState.below = true;
+                collisionState.slopeAngle = -angle;
             }
             else // too steep. get out of here
             {
@@ -694,7 +695,8 @@ namespace Snugsound
                     float slopeModifier = slopeSpeedMultiplier.Evaluate(-angle);
                     // we add the extra downward movement here to ensure we "stick" to the surface below
                     deltaMovement.y += _raycastHit2.point.y - slopeRay.y - SkinWidth;
-                    deltaMovement.x *= slopeModifier;
+                    deltaMovement = new Vector3(0, deltaMovement.y, 0) +
+                                    (Quaternion.AngleAxis(-angle, Vector3.forward) * new Vector3(deltaMovement.x * slopeModifier, 0, 0));
                     collisionState.movingDownSlope = true;
                     collisionState.slopeAngle = angle;
 
