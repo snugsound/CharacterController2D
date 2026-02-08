@@ -22,19 +22,19 @@ Improvements and Modifications
 =====================
 This fork adds many improvements and modifications, primarily centered around slope handling, and steep slopes in particular:
 
-* fix for bug with player jumping 3x the height when holding down arrow key and jumping
-* fix IDE1006 naming rule violations
-* fix for player becoming ungrounded when turning on a steep slope
-* fix for player X velocity reset when attempting to jump up a steep slope
-* fix for demo player scaled x2
-* add a second slope ray to prevent character from becoming ungrounded at the bottom of slopes
-* execute Move in FixedUpdate, and at a higher resolution than default
-* display debug information in DemoScene
-* change jump key to space bar
-* remove underscore variable notation, bracketless if statements (personal preference)
-* replace jumpingThreshold with explicit parameter (isJumpingThisFrame)
-* play falling animation upon becoming ungrounded
-* use SpriteRenderer's flipX instead of localScale hack
+* Fix for bug with player jumping 3x the height when holding down arrow key and jumping
+* Fix IDE1006 naming rule violations
+* Fix for player becoming ungrounded when turning on a steep slope
+* Fix for player X velocity reset when attempting to jump up a steep slope
+* Fix for demo player scaled x2
+* Add a second slope ray to prevent character from becoming ungrounded at the bottom of slopes
+* Execute Move in FixedUpdate, and at a higher resolution than default
+* Display debug information in DemoScene
+* Change jump key to space bar
+* Remove underscore variable notation, bracketless if statements (personal preference)
+* Replace jumpingThreshold with explicit parameter (isJumpingThisFrame)
+* Play falling animation upon becoming ungrounded
+* Use SpriteRenderer's flipX instead of localScale hack
 
 License
 -----
